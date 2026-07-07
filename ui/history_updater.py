@@ -129,9 +129,44 @@ class HistoryUpdater:
             )
 
     def update_history(self):
+        self.result_box.delete("1.0", "end")
 
         dataframe = self.history_module.load_excel(
             self.selected_file
         )
 
-        print(dataframe.columns.tolist())
+        if not self.history_module.validate_columns(dataframe):
+            self.log_message("❌ Fișier invalid.")
+            return
+
+        self.log_message("✔ Fișier valid.")
+
+        event_name = self.event_entry.get().strip()
+
+        if event_name == "":
+            self.log_message("❌ Introdu numele evenimentului.")
+            return
+
+        updated_count, skipped_count = self.history_module.update_history(
+            dataframe,
+            event_name
+        )
+
+        output_path = self.history_module.save_excel(
+            dataframe,
+            event_name
+        )
+
+        self.log_message(f"✔ Istorice actualizate: {updated_count}")
+        self.log_message(
+            f"⚠ Participanți care aveau deja evenimentul: {skipped_count}"
+        )
+
+        self.log_message("✔ Fișier salvat cu succes.")
+        self.log_message(f"📁 {output_path}")
+
+    
+    def log_message(self, message):
+
+        self.result_box.insert("end", message + "\n")
+        self.result_box.see("end")

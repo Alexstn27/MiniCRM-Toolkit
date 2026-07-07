@@ -1,0 +1,1 @@
+HISTORY_COLUMN = "Persoana1: Istoric webinarii"
