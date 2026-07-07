@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog
+from modules.history_updater import HistoryUpdaterModule
 
 class HistoryUpdater:
 
@@ -7,7 +8,8 @@ class HistoryUpdater:
 
         self.page_frame = ctk.CTkFrame(parent)
         self.selected_file = None
-        
+        self.history_module = HistoryUpdaterModule()
+
         self.create_widgets()
         self.layout_widgets()
 
@@ -47,7 +49,8 @@ class HistoryUpdater:
 
         self.update_button = ctk.CTkButton(
             self.page_frame,
-            text="Actualizează istoricul"
+            text="Actualizează istoricul",
+            command=self.update_history
         )
 
         self.result_box = ctk.CTkTextbox(
@@ -118,6 +121,17 @@ class HistoryUpdater:
         )
 
         if file_path:
+
+            self.selected_file = file_path
+
             self.selected_file_label.configure(
                 text=file_path
             )
+
+    def update_history(self):
+
+        dataframe = self.history_module.load_excel(
+            self.selected_file
+        )
+
+        print(dataframe.columns.tolist())
