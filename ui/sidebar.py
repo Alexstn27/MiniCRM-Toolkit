@@ -2,8 +2,13 @@ import customtkinter as ctk
 
 
 class Sidebar:
-    def __init__(self, parent, on_dashboard_clicked, on_history_clicked):
-
+    def __init__(
+        self,
+        parent,
+        on_dashboard_clicked,
+        on_history_updater_clicked,
+        on_duplicate_remover_clicked
+    ):
         self.sidebar_frame = ctk.CTkFrame(
             parent,
             width=220,
@@ -14,8 +19,10 @@ class Sidebar:
             side="left",
             fill="y"
         )
+        
         self.on_dashboard_clicked = on_dashboard_clicked
-        self.on_history_clicked = on_history_clicked
+        self.on_history_updater_clicked = on_history_updater_clicked
+        self.on_duplicate_remover_clicked = on_duplicate_remover_clicked
         
         self.create_widgets()
         self.layout_widgets()
@@ -47,17 +54,12 @@ class Sidebar:
 
         self.history_button = self.create_sidebar_button(
         "Actualizare istoric",
-        self.on_history_clicked
+        self.on_history_updater_clicked
         )
 
-        self.unique_emails_button = self.create_sidebar_button(
-        "Emailuri unice",
-        lambda: print("Unique Emails clicked")
-        )
-
-        self.duplicates_button = self.create_sidebar_button(
+        self.duplicate_remover_button = self.create_sidebar_button(
         "Eliminare duplicate",
-        lambda: print("Duplicates clicked")
+        self.on_duplicate_remover_clicked
         )
 
     def layout_widgets(self):
@@ -91,16 +93,10 @@ class Sidebar:
         fill="x"
         )
 
-        self.unique_emails_button.pack(
-        padx=10,
-        pady=5,
-        fill="x"
-        )
-
-        self.duplicates_button.pack(
-        padx=10,
-        pady=5,
-        fill="x"
+        self.duplicate_remover_button.pack(
+            fill="x",
+            padx=10,
+            pady=5
         )
     
 
@@ -110,6 +106,3 @@ class Sidebar:
         text=text,
         command=command
     )
-
-    def on_dashboard_clicked(self):
-        print("Dashboard clicked")

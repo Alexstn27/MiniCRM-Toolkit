@@ -2,6 +2,7 @@ import customtkinter as ctk
 from ui.sidebar import Sidebar
 from ui.dashboard import Dashboard
 from ui.history_updater import HistoryUpdater
+from ui.duplicate_remover import DuplicateRemover
 
 class MainWindow:
     def __init__(self):
@@ -16,7 +17,8 @@ class MainWindow:
         self.sidebar = Sidebar(
             self.main_window,
             self.on_dashboard_clicked,
-            self.on_history_clicked
+            self.on_history_updater_clicked,
+            self.on_duplicate_remover_clicked
         )
 
         
@@ -37,11 +39,14 @@ class MainWindow:
 
         self.current_page = page_class(self.content)
 
-    def on_dashboard_clicked(self):
-        self.show_page(Dashboard)
-
-    def on_history_clicked(self):
+    def on_history_updater_clicked(self):
         self.show_page(HistoryUpdater)
 
+    def on_dashboard_clicked(self):
+        self.show_page(Dashboard)
+        
     def run(self):
         self.main_window.mainloop()
+
+    def on_duplicate_remover_clicked(self):
+        self.show_page(DuplicateRemover)
