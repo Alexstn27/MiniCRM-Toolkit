@@ -8,6 +8,7 @@ class HistoryUpdater:
 
         self.page_frame = ctk.CTkFrame(parent)
         self.selected_file = None
+        self.event_type = ctk.StringVar(value="webinar")
         self.history_module = HistoryUpdaterModule()
 
         self.create_widgets()
@@ -28,6 +29,25 @@ class HistoryUpdater:
         self.event_entry = ctk.CTkEntry(
             self.page_frame,
             placeholder_text="Ex: SAD 12-13 iunie 2026"
+        )
+
+        self.event_type_label = ctk.CTkLabel(
+            self.page_frame,
+            text="Tip eveniment"
+        )
+
+        self.webinar_radio = ctk.CTkRadioButton(
+            self.page_frame,
+            text="Webinar",
+            variable=self.event_type,
+            value="webinar"
+        )
+
+        self.physical_event_radio = ctk.CTkRadioButton(
+            self.page_frame,
+            text="Eveniment fizic",
+            variable=self.event_type,
+            value="physical"
         )
 
         self.file_label = ctk.CTkLabel(
@@ -82,6 +102,23 @@ class HistoryUpdater:
             fill="x"
         )
 
+        self.event_type_label.pack(
+            anchor="w",
+            padx=20,
+            pady=(10, 5)
+        )
+
+        self.webinar_radio.pack(
+            anchor="w",
+            padx=20
+        )
+
+        self.physical_event_radio.pack(
+            anchor="w",
+            padx=20,
+            pady=(0, 15)
+        )
+
         self.file_label.pack(
             padx=20,
             pady=(20, 5),
@@ -129,27 +166,39 @@ class HistoryUpdater:
             )
 
     def update_history(self):
+
         self.result_box.delete("1.0", "end")
 
-        dataframe = self.history_module.load_excel(
-            self.selected_file
-        )
-
-        if not self.history_module.validate_columns(dataframe):
-            self.log_message("❌ Fișier invalid.")
-            return
-
-        self.log_message("✔ Fișier valid.")
-
         event_name = self.event_entry.get().strip()
+        event_type = self.event_type.get()
 
         if event_name == "":
             self.log_message("❌ Introdu numele evenimentului.")
             return
 
+        if self.selected_file is None:
+            self.log_message("❌ Selectează un fișier Excel.")
+            return
+
+        dataframe = self.history_module.load_excel(
+            self.selected_file
+        )
+
+        if not self.history_module.validate_columns(
+            dataframe,
+            event_type
+        ):
+            self.log_message("❌ Fișier invalid.")
+            return
+
+        self.log_message(
+            f"✔ Fișier valid pentru {event_type}."
+        )
+        
         updated_count, skipped_count = self.history_module.update_history(
             dataframe,
-            event_name
+            event_name,
+            event_type
         )
 
         output_path = self.history_module.save_excel(
@@ -164,7 +213,6 @@ class HistoryUpdater:
 
         self.log_message("✔ Fișier salvat cu succes.")
         self.log_message(f"📁 {output_path}")
-
     
     def log_message(self, message):
 

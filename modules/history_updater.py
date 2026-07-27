@@ -1,7 +1,9 @@
 import pandas as pd
 from datetime import datetime
-from core.constants import HISTORY_COLUMN
-
+from core.constants import (
+    WEBINAR_HISTORY_COLUMN,
+    PHYSICAL_EVENT_HISTORY_COLUMN
+)
 
 class HistoryUpdaterModule:
 
@@ -11,31 +13,47 @@ class HistoryUpdaterModule:
 
         return dataframe
 
-    def validate_columns(self, dataframe):
+    def validate_columns(
+        self,
+        dataframe,
+        event_type
+    ):
 
-        required_columns = [
-            HISTORY_COLUMN
-        ]
+        if event_type == "webinar":
 
-        for column in required_columns:
+            required_column = WEBINAR_HISTORY_COLUMN
 
-            if column not in dataframe.columns:
-                return False
+        else:
+
+            required_column = PHYSICAL_EVENT_HISTORY_COLUMN
+
+        if required_column not in dataframe.columns:
+            return False
 
         return True
 
-    def update_history(self, dataframe, event_name):
+    def update_history(
+        self,
+        dataframe,
+        event_name,
+        event_type
+    ):
+        if event_type == "webinar":
+            history_column = WEBINAR_HISTORY_COLUMN
+
+        else:
+            history_column = PHYSICAL_EVENT_HISTORY_COLUMN       
 
         updated_count = 0
         skipped_count = 0
 
         for index, row in dataframe.iterrows():
 
-            history = row[HISTORY_COLUMN]
+            history = row[history_column]
 
             if pd.isna(history):
 
-                dataframe.at[index, HISTORY_COLUMN] = event_name
+                dataframe.at[index, history_column] = event_name
                 updated_count += 1
 
             else:
@@ -49,7 +67,7 @@ class HistoryUpdaterModule:
                     skipped_count += 1
 
                 else:
-                    dataframe.at[index, HISTORY_COLUMN] = (
+                    dataframe.at[index, history_column] = (
                         history + "; " + event_name
                     )
                     updated_count += 1

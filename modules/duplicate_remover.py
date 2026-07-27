@@ -31,9 +31,25 @@ class DuplicateRemoverModule:
 
         original_count = len(dataframe)
 
-        dataframe = dataframe.drop_duplicates(
+        dataframe_with_email = dataframe[
+            dataframe[EMAIL_COLUMN].notna()
+        ].copy()
+
+        dataframe_without_email = dataframe[
+            dataframe[EMAIL_COLUMN].isna()
+        ].copy()
+
+        dataframe_with_email = dataframe_with_email.drop_duplicates(
             subset=[EMAIL_COLUMN],
             keep="first"
+        )
+
+        dataframe = pd.concat(
+            [
+                dataframe_with_email,
+                dataframe_without_email
+            ],
+            ignore_index=True
         )
 
         removed_count = original_count - len(dataframe)
