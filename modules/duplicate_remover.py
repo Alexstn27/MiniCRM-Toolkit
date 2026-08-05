@@ -55,6 +55,27 @@ class DuplicateRemoverModule:
         removed_count = original_count - len(dataframe)
 
         return dataframe, removed_count
+
+    def find_possible_duplicates_without_email(self, dataframe):
+
+        dataframe_without_email = dataframe[
+            dataframe[EMAIL_COLUMN].isna()
+        ].copy()
+
+        duplicate_rows = dataframe_without_email[
+            dataframe_without_email.duplicated(
+                subset=["Contact: Nume"],
+                keep=False
+            )
+        ]
+
+        duplicate_names = (
+            duplicate_rows["Contact: Nume"]
+            .drop_duplicates()
+            .tolist()
+        )
+
+        return duplicate_names
     
     def save_excel(self, dataframe):
 

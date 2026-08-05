@@ -118,6 +118,12 @@ class DuplicateRemover:
             self.selected_file
         )
 
+        possible_duplicates = (
+            self.duplicate_module.find_possible_duplicates_without_email(
+                dataframe
+            )
+        )
+
         if not self.duplicate_module.validate_columns(dataframe):
             self.log_message("❌ Fișier invalid.")
             return
@@ -150,6 +156,15 @@ class DuplicateRemover:
         self.log_message(
             f"✔ Duplicate eliminate: {removed_count}"
         )
+
+        if len(possible_duplicates) > 0:
+
+            self.log_message("")
+            self.log_message("⚠ Posibile duplicate fără email:")
+
+            for name in possible_duplicates:
+
+                self.log_message(f"★★★★★ {name}")
 
         self.log_message(
             "✔ Fișier salvat cu succes."
