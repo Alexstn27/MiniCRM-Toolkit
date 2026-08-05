@@ -162,9 +162,18 @@ class DuplicateRemover:
             self.log_message("")
             self.log_message("⚠ Posibile duplicate fără email:")
 
-            for name in possible_duplicates:
+            for duplicate in possible_duplicates:
 
-                self.log_message(f"★★★★★ {name}")
+                name = duplicate["name"]
+                score = duplicate["score"]
+
+                stars = self.duplicate_module.get_score_stars(
+                    score
+                )
+
+                self.log_message(
+                    f"{stars} {name} ({score}%)"
+                )
 
         self.log_message(
             "✔ Fișier salvat cu succes."
