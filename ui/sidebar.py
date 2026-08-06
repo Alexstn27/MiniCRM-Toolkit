@@ -7,7 +7,8 @@ class Sidebar:
         parent,
         on_dashboard_clicked,
         on_history_updater_clicked,
-        on_duplicate_remover_clicked
+        on_duplicate_remover_clicked,
+        on_statistics_clicked
     ):
         self.sidebar_frame = ctk.CTkFrame(
             parent,
@@ -23,6 +24,7 @@ class Sidebar:
         self.on_dashboard_clicked = on_dashboard_clicked
         self.on_history_updater_clicked = on_history_updater_clicked
         self.on_duplicate_remover_clicked = on_duplicate_remover_clicked
+        self.on_statistics_clicked = on_statistics_clicked
         
         self.create_widgets()
         self.layout_widgets()
@@ -62,6 +64,11 @@ class Sidebar:
         self.on_duplicate_remover_clicked
         )
 
+        self.statistics_button = self.create_sidebar_button(
+        "Statistici",
+        self.on_statistics_clicked
+        )
+
     def layout_widgets(self):
         self.sidebar_title.pack(
         padx=20,
@@ -94,6 +101,12 @@ class Sidebar:
         )
 
         self.duplicate_remover_button.pack(
+            fill="x",
+            padx=10,
+            pady=5
+        )
+
+        self.statistics_button.pack(
             fill="x",
             padx=10,
             pady=5

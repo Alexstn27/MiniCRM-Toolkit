@@ -3,6 +3,7 @@ from ui.sidebar import Sidebar
 from ui.dashboard import Dashboard
 from ui.history_updater import HistoryUpdater
 from ui.duplicate_remover import DuplicateRemover
+from ui.statistics import Statistics
 
 class MainWindow:
     def __init__(self):
@@ -18,7 +19,9 @@ class MainWindow:
             self.main_window,
             self.on_dashboard_clicked,
             self.on_history_updater_clicked,
-            self.on_duplicate_remover_clicked
+            self.on_duplicate_remover_clicked,
+            self.on_statistics_clicked
+
         )
 
         
@@ -50,3 +53,6 @@ class MainWindow:
 
     def on_duplicate_remover_clicked(self):
         self.show_page(DuplicateRemover)
+
+    def on_statistics_clicked(self):
+        self.show_page(Statistics)
