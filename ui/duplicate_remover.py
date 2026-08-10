@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog
+from ui.components import FileSelector, log_message
 from modules.duplicate_remover import DuplicateRemoverModule
 
 class DuplicateRemover:
@@ -7,11 +7,16 @@ class DuplicateRemover:
     def __init__(self, parent):
 
         self.page_frame = ctk.CTkFrame(parent)
-        self.selected_file = None
         self.duplicate_module = DuplicateRemoverModule()
+        self.file_selector = FileSelector(self.page_frame)
 
         self.create_widgets()
         self.layout_widgets()
+
+        self.log_message = lambda message: log_message(
+            self.result_box,
+            message
+        )
 
     def create_widgets(self):
 
@@ -27,17 +32,7 @@ class DuplicateRemover:
             text="Fișier Excel"
         )
 
-        self.selected_file_label = ctk.CTkLabel(
-            self.page_frame,
-            text="Niciun fișier selectat",
-            anchor="w"
-        )
-
-        self.browse_button = ctk.CTkButton(
-            self.page_frame,
-            text="Browse...",
-            command=self.browse_file
-        )
+        
 
         self.update_button = ctk.CTkButton(
             self.page_frame,
@@ -70,12 +65,12 @@ class DuplicateRemover:
             anchor="w"
         )
 
-        self.selected_file_label.pack(
+        self.file_selector.selected_file_label.pack(
             padx=20,
             anchor="w"
         )
 
-        self.browse_button.pack(
+        self.file_selector.browse_button.pack(
             padx=20,
             pady=10,
             anchor="w"
@@ -93,29 +88,17 @@ class DuplicateRemover:
             expand=True
         )
 
-    def browse_file(self):
-
-        file_path = filedialog.askopenfilename(
-            title="Selectează fișierul Excel",
-            filetypes=[
-                ("Excel files", "*.xlsx")
-            ]
-        )
-
-        if file_path:
-
-            self.selected_file = file_path
-
-            self.selected_file_label.configure(
-                text=file_path
-            )
-
+   
     def remove_duplicates(self):
 
         self.result_box.delete("1.0", "end")
 
+        if self.file_selector.selected_file is None:
+            self.log_message("❌ Selectează un fișier Excel.")
+            return
+
         dataframe = self.duplicate_module.load_excel(
-            self.selected_file
+            self.file_selector.selected_file
         )
 
         possible_duplicates = (
@@ -183,8 +166,3 @@ class DuplicateRemover:
             f"📁 {output_path}"
         )
         self.log_message("✅ Operațiunea s-a încheiat cu succes.")
-    
-    def log_message(self, message):
-
-        self.result_box.insert("end", message + "\n")
-        self.result_box.see("end")

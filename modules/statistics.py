@@ -1,5 +1,5 @@
 import pandas as pd
-
+from core.helpers import load_excel
 from core.constants import (
     EMAIL_COLUMN,
     NAME_COLUMN,
@@ -11,9 +11,7 @@ class StatisticsModule:
 
     def load_excel(self, file_path):
 
-        dataframe = pd.read_excel(file_path)
-
-        return dataframe
+        return load_excel(file_path)
 
     def validate_columns(self, dataframe):
 

@@ -1,6 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog
-
+from ui.components import FileSelector, log_message
 from modules.statistics import StatisticsModule
 
 
@@ -9,8 +8,6 @@ class Statistics:
     def __init__(self, parent):
 
         self.statistics_module = StatisticsModule()
-
-        self.selected_file = None
 
         self.page_frame = ctk.CTkFrame(
             parent,
@@ -22,8 +19,17 @@ class Statistics:
             expand=True
         )
 
+        self.file_selector = FileSelector(
+            self.page_frame
+        )
+
         self.create_widgets()
         self.layout_widgets()
+
+        self.log_message = lambda message: log_message(
+            self.result_box,
+            message
+        )
 
     def create_widgets(self):
 
@@ -33,16 +39,6 @@ class Statistics:
             font=("Segoe UI", 24, "bold")
         )
 
-        self.browse_button = ctk.CTkButton(
-            self.page_frame,
-            text="Selecteaza fisierul",
-            command=self.browse_file
-        )
-
-        self.selected_file_label = ctk.CTkLabel(
-            self.page_frame,
-            text="Niciun fișier selectat"
-        )
 
         self.statistics_button = ctk.CTkButton(
             self.page_frame,
@@ -62,11 +58,11 @@ class Statistics:
             pady=(20, 10)
         )
 
-        self.browse_button.pack(
+        self.file_selector.browse_button.pack(
             pady=10
         )
 
-        self.selected_file_label.pack(
+        self.file_selector.selected_file_label.pack(
             pady=5
         )
 
@@ -81,29 +77,6 @@ class Statistics:
             expand=True
         )
 
-    def browse_file(self):
-
-        file_path = filedialog.askopenfilename(
-            title="Selectează fișierul Excel",
-            filetypes=[
-                ("Excel files", "*.xlsx")
-            ]
-        )
-
-        if file_path:
-
-            self.selected_file = file_path
-
-            self.selected_file_label.configure(
-                text=file_path
-            )
-
-    def log_message(self, message):
-
-        self.result_box.insert(
-            "end",
-            message + "\n"
-        )
 
     def generate_statistics(self):
 
@@ -112,8 +85,16 @@ class Statistics:
             "end"
         )
 
+        if self.file_selector.selected_file is None:
+
+            self.log_message(
+                "❌ Selectează un fișier Excel."
+            )
+
+            return
+
         dataframe = self.statistics_module.load_excel(
-            self.selected_file
+            self.file_selector.selected_file
         )
 
         if not self.statistics_module.validate_columns(

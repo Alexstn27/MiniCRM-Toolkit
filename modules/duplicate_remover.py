@@ -1,6 +1,4 @@
 import pandas as pd
-from datetime import datetime
-
 from core.constants import (
     EMAIL_COLUMN,
     NAME_COLUMN,
@@ -12,15 +10,16 @@ from core.constants import (
     WORKPLACE_SCORE,
     CITY_SCORE
 )
-
+from core.helpers import (
+    load_excel,
+    save_excel
+)
 
 class DuplicateRemoverModule:
 
     def load_excel(self, file_path):
 
-        dataframe = pd.read_excel(file_path)
-
-        return dataframe
+        return load_excel(file_path)
 
 
     def validate_columns(self, dataframe):
@@ -195,15 +194,7 @@ class DuplicateRemoverModule:
     
     def save_excel(self, dataframe):
 
-        timestamp = datetime.now().strftime("%Y-%m-%d %H-%M")
-
-        output_path = (
-            f"output/MiniCRM - Participanți fără duplicate - {timestamp}.xlsx"
+        return save_excel(
+            dataframe,
+            "MiniCRM - Participanți fără duplicate"
         )
-
-        dataframe.to_excel(
-            output_path,
-            index=False
-        )
-
-        return output_path

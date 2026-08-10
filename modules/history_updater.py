@@ -1,17 +1,20 @@
 import pandas as pd
-from datetime import datetime
+
 from core.constants import (
     WEBINAR_HISTORY_COLUMN,
     PHYSICAL_EVENT_HISTORY_COLUMN
+)
+
+from core.helpers import (
+    load_excel,
+    save_excel
 )
 
 class HistoryUpdaterModule:
 
     def load_excel(self, file_path):
 
-        dataframe = pd.read_excel(file_path)
-
-        return dataframe
+        return load_excel(file_path)
 
     def validate_columns(
         self,
@@ -76,15 +79,7 @@ class HistoryUpdaterModule:
     
     def save_excel(self, dataframe, event_name):
 
-        timestamp = datetime.now().strftime("%Y-%m-%d %H-%M")
-
-        output_path = (
-            f"output/{event_name} - Import MiniCRM - {timestamp}.xlsx"
-        )
-
-        dataframe.to_excel(
-            output_path,
-            index=False
-        )
-
-        return output_path
+        return save_excel(
+        dataframe,
+        event_name
+        )   

@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog
+from ui.components import FileSelector, log_message
 from modules.history_updater import HistoryUpdaterModule
 
 class HistoryUpdater:
@@ -7,12 +7,17 @@ class HistoryUpdater:
     def __init__(self, parent):
 
         self.page_frame = ctk.CTkFrame(parent)
-        self.selected_file = None
         self.event_type = ctk.StringVar(value="webinar")
         self.history_module = HistoryUpdaterModule()
+        self.file_selector = FileSelector(self.page_frame)
 
         self.create_widgets()
         self.layout_widgets()
+        
+        self.log_message = lambda message: log_message(
+            self.result_box,
+            message
+        )
 
     def create_widgets(self):
 
@@ -55,18 +60,7 @@ class HistoryUpdater:
             text="Fișier Excel"
         )
 
-        self.selected_file_label = ctk.CTkLabel(
-            self.page_frame,
-            text="Niciun fișier selectat",
-            anchor="w"
-        )
-
-        self.browse_button = ctk.CTkButton(
-            self.page_frame,
-            text="Browse...",
-            command=self.browse_file
-        )
-
+       
         self.update_button = ctk.CTkButton(
             self.page_frame,
             text="Actualizează istoricul",
@@ -125,12 +119,12 @@ class HistoryUpdater:
             anchor="w"
         )
 
-        self.selected_file_label.pack(
+        self.file_selector.selected_file_label.pack(
             padx=20,
             anchor="w"
         )
 
-        self.browse_button.pack(
+        self.file_selector.browse_button.pack(
             padx=20,
             pady=10,
             anchor="w"
@@ -148,23 +142,7 @@ class HistoryUpdater:
             expand=True
         )
 
-    def browse_file(self):
-
-        file_path = filedialog.askopenfilename(
-            title="Selectează fișierul Excel",
-            filetypes=[
-                ("Excel files", "*.xlsx")
-            ]
-        )
-
-        if file_path:
-
-            self.selected_file = file_path
-
-            self.selected_file_label.configure(
-                text=file_path
-            )
-
+   
     def update_history(self):
 
         self.result_box.delete("1.0", "end")
@@ -176,12 +154,12 @@ class HistoryUpdater:
             self.log_message("❌ Introdu numele evenimentului.")
             return
 
-        if self.selected_file is None:
+        if self.file_selector.selected_file is None:
             self.log_message("❌ Selectează un fișier Excel.")
             return
 
         dataframe = self.history_module.load_excel(
-            self.selected_file
+            self.file_selector.selected_file
         )
 
         if not self.history_module.validate_columns(
@@ -214,7 +192,4 @@ class HistoryUpdater:
         self.log_message("✔ Fișier salvat cu succes.")
         self.log_message(f"📁 {output_path}")
     
-    def log_message(self, message):
-
-        self.result_box.insert("end", message + "\n")
-        self.result_box.see("end")
+  
