@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from ui.components import FileSelector, log_message
-from modules.duplicate_remover import DuplicateRemoverModule
+from modules.duplicate_remover import DuplicateRemoverModule, compare_and_filter_files
 
 class DuplicateRemover:
 
@@ -45,6 +45,33 @@ class DuplicateRemover:
             height=180
         )
 
+
+        self.comparison_title = ctk.CTkLabel(
+            self.page_frame,
+            text="Compară două fișiere Excel",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        )
+
+        self.main_file_label = ctk.CTkLabel(
+            self.page_frame,
+            text="1. Lista principală",
+        )
+
+        self.main_file_selector = FileSelector(self.page_frame)
+
+        self.comparison_file_label = ctk.CTkLabel(
+            self.page_frame,
+            text="2. Lista cu participanții de eliminat",
+        )
+
+        self.comparison_file_selector = FileSelector(self.page_frame)
+
+        self.compare_files_button = ctk.CTkButton(
+            self.page_frame,
+            text="Compară Excelurile și elimină persoanele comune",
+            command=self.compare_and_remove_common,
+        )
+
     def layout_widgets(self):
 
         self.page_frame.pack(
@@ -79,6 +106,34 @@ class DuplicateRemover:
         self.update_button.pack(
             padx=20,
             pady=20
+        )
+
+        self.comparison_title.pack(
+            anchor="w", padx=20, pady=(24, 10)
+        )
+
+        self.main_file_label.pack(
+            anchor="w", padx=20, pady=(4, 2)
+        )
+        self.main_file_selector.selected_file_label.pack(
+            anchor="w", fill="x", padx=20, pady=2
+        )
+        self.main_file_selector.browse_button.pack(
+            anchor="w", padx=20, pady=(2, 10)
+        )
+
+        self.comparison_file_label.pack(
+            anchor="w", padx=20, pady=(4, 2)
+        )
+        self.comparison_file_selector.selected_file_label.pack(
+            anchor="w", fill="x", padx=20, pady=2
+        )
+        self.comparison_file_selector.browse_button.pack(
+            anchor="w", padx=20, pady=(2, 10)
+        )
+
+        self.compare_files_button.pack(
+            anchor="w", padx=20, pady=(5, 15)
         )
 
         self.result_box.pack(
@@ -166,3 +221,119 @@ class DuplicateRemover:
             f"📁 {output_path}"
         )
         self.log_message("✅ Operațiunea s-a încheiat cu succes.")
+
+
+    def compare_and_remove_common(self):
+
+        self.result_box.delete("1.0", "end")
+
+        main_file = self.main_file_selector.selected_file
+        comparison_file = self.comparison_file_selector.selected_file
+
+        if main_file is None:
+            self.log_message("❌ Selectează fișierul Excel principal.")
+            return
+
+        if comparison_file is None:
+            self.log_message(
+                "❌ Selectează fișierul Excel cu persoanele de eliminat."
+            )
+            return
+
+        if main_file == comparison_file:
+            self.log_message(
+                "❌ Selectează două fișiere Excel diferite."
+            )
+            return
+
+        try:
+            self.log_message("🔄 Se compară cele două fișiere Excel...")
+
+            result = compare_and_filter_files(
+                main_file,
+                comparison_file
+            )
+
+            self.log_message("")
+            self.log_message("========== REZULTAT COMPARARE ==========")
+
+            self.log_message(
+                f"Persoane în lista principală: {result['main_count']}"
+            )
+
+            self.log_message(
+                f"Persoane în lista de comparație: "
+                f"{result['comparison_count']}"
+            )
+
+            self.log_message(
+                f"Eliminate prin email: {result['removed_by_email']}"
+            )
+
+            self.log_message(
+                f"Eliminate prin nume: {result['removed_by_name']}"
+            )
+
+            self.log_message(
+                f"Total persoane eliminate: {result['removed_count']}"
+            )
+
+            self.log_message(
+                f"Persoane rămase: {result['remaining_count']}"
+            )
+
+            review_records = result["review_records"]
+
+            self.log_message("")
+            self.log_message(
+                f"========== DE VERIFICAT MANUAL: "
+                f"{len(review_records)} cazuri =========="
+            )
+
+            if not review_records:
+                self.log_message(
+                    "✅ Nu au fost identificate cazuri care necesită verificare."
+                )
+
+            else:
+                for number, person in enumerate(review_records, start=1):
+
+                    self.log_message("")
+                    self.log_message(f"--- Cazul {number} ---")
+
+                    self.log_message(
+                        f"Motiv: {person['Motiv verificare']}"
+                    )
+
+                    self.log_message(
+                        f"Nume - lista principală: "
+                        f"{person['Nume lista principala'] or '(lipsă)'}"
+                    )
+
+                    self.log_message(
+                        f"Email - lista principală: "
+                        f"{person['Email lista principala'] or '(lipsă)'}"
+                    )
+
+                    self.log_message(
+                        f"Nume - lista achitați: "
+                        f"{person['Nume lista achitati'] or '(lipsă)'}"
+                    )
+
+                    self.log_message(
+                        f"Email - lista achitați: "
+                        f"{person['Email lista achitati'] or '(lipsă)'}"
+                    )
+
+            self.log_message("")
+            self.log_message("✅ Fișierul rezultat a fost salvat.")
+            self.log_message(f"📁 {result['output_path']}")
+            self.log_message(
+                "📄 Fișierul conține sheet-urile "
+                "'Participanti ramasi' și 'De verificat'."
+            )
+
+        except Exception as error:
+            self.log_message(
+                f"❌ Eroare la compararea fișierelor: {error}"
+            )
